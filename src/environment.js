@@ -7,7 +7,7 @@ class Environment {
   }
 
   get(name) {
-    const set = getSet(name.lexeme);
+    const set = this.getSet(name.lexeme);
     if (set) {
       return set[1];
     }
@@ -16,7 +16,7 @@ class Environment {
     if (this.enclosing) return this.enclosing.get(name);
 
     // if not found after recursively walking up the chain, throw error
-    throw new runtimeError(name, `Undefined variable '${name.lexeme}'.`);
+    throw runtimeError(name, `Undefined variable '${name.lexeme}'.`);
   }
 
   getSet(name) {

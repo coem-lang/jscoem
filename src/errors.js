@@ -44,9 +44,7 @@ const parseError = (msg, token) => {
   }
 }
 
-const runtimeError = (msg, token) => {
-  new RuntimeError(msg, token);
-}
+const runtimeError = (msg, token) => new RuntimeError(msg, token);
 
 const formatCoemError = (e, code) => {
   if (e instanceof CoemError) {
