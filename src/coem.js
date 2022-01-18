@@ -1,7 +1,7 @@
 // adapted from YALI.js by Daniel Berezin (danman113)
 // https://github.com/danman113/YALI.js
 
-const { Tokenizer } = require('./tokenizer');
+const Tokenizer = require('./tokenizer');
 const Parser = require('./parser');
 const Interpreter = require('./interpreter');
 const Environment = require('./environment');
