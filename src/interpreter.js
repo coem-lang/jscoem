@@ -189,7 +189,6 @@ class Interpreter {
     const right = this.evaluate(expr.right);
     switch (expr.operator.type) {
       // Equality
-      case token.EQUAL_EQUAL:
       case token.IS:
       case token.AM:
       case token.ARE:
