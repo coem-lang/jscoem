@@ -28,7 +28,7 @@ class Parser {
     let statements = []
     while (!this.isAtEnd) {
       while (this.check(token.NEWLINE)) {
-        consume(token.NEWLINE, "Expect newline between statements.");
+        this.consume(token.NEWLINE, "Expect newline between statements.");
       }
       statements.push(this.declaration());
     }
