@@ -6,17 +6,17 @@ class Environment {
     this.enclosing = enclosing;
   }
 
-  get(name) {
-    const set = this.getSet(name.lexeme);
+  get(token) {
+    const set = this.getSet(token.name.lexeme);
     if (set) {
       return set[1];
     }
 
     // if not found in this environment, try enclosing one
-    if (this.enclosing) return this.enclosing.get(name);
+    if (this.enclosing) return this.enclosing.get(token);
 
     // if not found after recursively walking up the chain, throw error
-    throw runtimeError(name, `Undefined variable '${name.lexeme}'.`);
+    throw runtimeError(`Undefined variable '${token.name.lexeme}'.`, token.name);
   }
 
   getSet(name) {
@@ -29,9 +29,9 @@ class Environment {
     return null;
   }
 
-  set(name, value) {
-    let pattern = new RegExp(name);
-    let set = this.getSet(name);
+  set(token, value) {
+    let pattern = new RegExp(token.lexeme);
+    let set = this.getSet(token.lexeme);
 
     // redefine in current environment
     if (set) {
@@ -39,10 +39,10 @@ class Environment {
     }
 
     if (this.enclosing) {
-      let enclosingSet = this.enclosing.getSet(name);
+      let enclosingSet = this.enclosing.getSet(token.lexeme);
       // redefine in enclosing environment
       if (enclosingSet) {
-        return this.enclosing.set(name, value);
+        return this.enclosing.set(token, value);
       }
     }
     
