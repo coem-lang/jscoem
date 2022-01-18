@@ -1,11 +1,19 @@
 {
   "name": "jscoem",
   "version": "1.0.0",
-  "description": "",
-  "main": "coem.js",
+  "description": "JavaScript implementation of Coem.",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coem-lang/jscoem.git"
+  },
   "author": "",
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/coem-lang/jscoem/issues"
+  },
+  "homepage": "https://github.com/coem-lang/jscoem#readme"
 }
