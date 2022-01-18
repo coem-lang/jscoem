@@ -228,7 +228,4 @@ class Token {
   }
 }
 
-module.exports = {
-  Tokenizer,
-  Token
-};
+module.exports = Tokenizer;

@@ -30,8 +30,12 @@ class Environment {
   }
 
   set(token, value) {
-    let pattern = new RegExp(token.lexeme);
-    let set = this.getSet(token.lexeme);
+    return this.setNameValue(token.lexeme, value);
+  }
+
+  setNameValue(name, value) {
+    let pattern = new RegExp(name);
+    let set = this.getSet(name);
 
     // redefine in current environment
     if (set) {
@@ -39,7 +43,7 @@ class Environment {
     }
 
     if (this.enclosing) {
-      let enclosingSet = this.enclosing.getSet(token.lexeme);
+      let enclosingSet = this.enclosing.getSet(name);
       // redefine in enclosing environment
       if (enclosingSet) {
         return this.enclosing.set(token, value);
@@ -52,7 +56,7 @@ class Environment {
 
   setBuiltin(name, func) {
     // this.values.set(name, typeof func === 'function' ? { call: func } : func);
-    this.set(name, func);
+    this.setNameValue(name, func);
   }
 }
 
