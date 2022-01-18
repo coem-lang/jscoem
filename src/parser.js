@@ -267,7 +267,7 @@ class Parser {
     let wrapped = expr;
     if (expr instanceof Call) {
       const callee = expr.callee;
-      if (!callee.name.lexeme.equals("print")) {
+      if (!callee.name === "print") {
         wrapped = printExpression(expr);
       }
     } else {
