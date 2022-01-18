@@ -1,9 +1,9 @@
 // adapted from YALI.js by Daniel Berezin (danman113)
 // https://github.com/danman113/YALI.js
 
-const Tokenizer = require('./tokenizer');
+const { Tokenizer } = require('./tokenizer');
 const Parser = require('./parser');
-const { Interpreter, LoxClass, LoxInstance } = require('./interpreter');
+const Interpreter = require('./interpreter');
 const Environment = require('./environment');
 
 function run(code, environment, printfn, debug = false) {
@@ -33,9 +33,7 @@ module.exports = {
   run,
   parse,
   Parser,
-  LoxClass,
   Tokenizer,
-  LoxInstance,
   Interpreter,
   Environment
 };

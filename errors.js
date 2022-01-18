@@ -48,7 +48,7 @@ const runtimeError = (msg, token) => {
   new RuntimeError(msg, token);
 }
 
-const formatLoxError = (e, code) => {
+const formatCoemError = (e, code) => {
   if (e instanceof CoemError) {
     const frontIndex = code.lastIndexOf('\n', e.startCoordinates.index);
     const preErrorStart = frontIndex < 0 ? 0 : frontIndex;
@@ -84,5 +84,5 @@ module.exports = {
   ReturnError,
   runtimeError,
   parseError,
-  formatLoxError
+  formatCoemError
 };

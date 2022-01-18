@@ -3,25 +3,22 @@ const noop = () => {};
 
 const tokens = `
   COLON,
-  COMMA, DOT, MINUS, PLUS, SLASH, STAR,
-  EM_DASH, SEMICOLON, AMPERSAND,
+  COMMA, DOT,
+  EMDASH,
+  AMPERSAND,
+  POUND,
 
-  BANG, BANG_EQUAL,
-  EQUAL, EQUAL_EQUAL,
-  GREATER, GREATER_EQUAL,
-  LESS, LESS_EQUAL,
+  IDENTIFIER, STRING,
 
-  IDENTIFIER, STRING, NUMBER,
-
-  AND, OR, // logic
-  IS, AM, ARE, // comparison
-  IF, ELSE, FOR, WHILE, // control flow
-  LET, BE, // variables
+  AND, OR,
+  IS, AM, ARE,
+  IF, ELSE, WHILE,
+  LET, BE,
   TO, 
-  PRINT, KNOW,
-  CLASS, SUPER, THIS, // classes
-  TRUE, FALSE, NOTHING, // values
+  TRUE, FALSE, NOTHING,
   NOT,
+
+  NEWLINE,
 
   EOF
 `
@@ -35,28 +32,25 @@ tokens.forEach((token, i) => {
 
 const keywords = {
   and: tokenEnum.AND,
-  else: tokenEnum.ELSE,
-  for: tokenEnum.FOR,
-  to: tokenEnum.TO,
-  if: tokenEnum.IF,
   or: tokenEnum.OR,
-  print: tokenEnum.PRINT,
-  know: tokenEnum.KNOW,
+  is: tokenEnum.IS,
+  am: tokenEnum.AM,
+  are: tokenEnum.ARE,
+  not: tokenEnum.NOT,
   true: tokenEnum.TRUE,
   false: tokenEnum.FALSE,
   nothing: tokenEnum.NOTHING,
   let: tokenEnum.LET,
-  while: tokenEnum.WHILE,
   be: tokenEnum.BE,
-  is: tokenEnum.IS,
-  am: tokenEnum.AM,
-  are: tokenEnum.ARE,
-  not: tokenEnum.NOT
+  to: tokenEnum.TO,
+  if: tokenEnum.IF,
+  else: tokenEnum.ELSE,
+  while: tokenEnum.WHILE,
 };
 
 const tokenMap = {
   '—': tokenizer => {
-    tokenizer.addToken(tokenEnum.EM_DASH);
+    tokenizer.addToken(tokenEnum.EMDASH);
   },
   ':': tokenizer => {
     tokenizer.addToken(tokenEnum.COLON);
@@ -65,62 +59,42 @@ const tokenMap = {
     tokenizer.addToken(tokenEnum.COMMA);
   },
   '.': tokenizer => {
-    // Handles leading decimals for number literals
-    if (isDigit(tokenizer.peek())) {
-      tokenizer.handleNumberLiterals();
-    } else {
-      tokenizer.addToken(tokenEnum.DOT);
-    }
-  },
-  '-': tokenizer => {
-    tokenizer.addToken(tokenEnum.MINUS);
-  },
-  '+': tokenizer => {
-    tokenizer.addToken(tokenEnum.PLUS);
-  },
-  ';': tokenizer => {
-    tokenizer.addToken(tokenEnum.SEMICOLON);
-  },
-  '/': tokenizer => {
-    if (tokenizer.nextMatch('/')) {
-      // Eat all those delish comments
-      while (tokenizer.peek() !== '\n' && tokenizer.peek() !== '') tokenizer.advance();
-    } else {
-      tokenizer.addToken(tokenEnum.SLASH);
-    }
-  },
-  '*': tokenizer => {
-    tokenizer.addToken(tokenEnum.STAR);
+    tokenizer.addToken(tokenEnum.DOT);
   },
   '&': tokenizer => {
     tokenizer.addToken(tokenEnum.AMPERSAND);
   },
-  '!': tokenizer => {
-    tokenizer.addToken(tokenizer.nextMatch('=') ? tokenEnum.BANG_EQUAL : tokenEnum.BANG);
+  '#': tokenizer => {
+    tokenizer.addToken(tokenEnum.POUND);
   },
-  '=': tokenizer => {
-    tokenizer.addToken(tokenizer.nextMatch('=') ? tokenEnum.EQUAL_EQUAL : tokenEnum.EQUAL);
-  },
-  '>': tokenizer => {
-    tokenizer.addToken(tokenizer.nextMatch('=') ? tokenEnum.GREATER_EQUAL : tokenEnum.GREATER);
-  },
-  '<': tokenizer => {
-    tokenizer.addToken(tokenizer.nextMatch('=') ? tokenEnum.LESS_EQUAL : tokenEnum.LESS);
+  '†': tokenizer => {
+    // comments
+    while (tokenizer.peek() !== '\n' && tokenizer.peek() !== '') tokenizer.advance();
   },
   ' ': noop,
   '\t': noop,
   '\r': noop,
   '\n': tokenizer => {
+    tokenizer.addToken(tokenEnum.newline);
     tokenizer.newline();
   },
-  '"': tokenizer => {
+  '“': tokenizer => {
     tokenizer.handleStringLiterals();
   }
 }
 
-const isDigit = str => /\d/.test(str)
 // const isAlpha = str => /[a-zA-Z_]/.test(str)
 // const isAlphaNumeric = str => isAlpha(str) || isDigit(str)
+
+const isIdentifierChar = (c) => {
+  return (
+    (c >= 'A' && c <= 'Z') ||
+    (c >= 'a' && c <= 'z') ||
+    (c == '(' || c == ')') ||
+    (c == '[' || c == ']') ||
+    (c == '|' || c == '?' || c == '*' || c == '+')
+  );
+};
 
 class Tokenizer {
   static get tokens() {
@@ -142,7 +116,7 @@ class Tokenizer {
   }
 
   handleStringLiterals() {
-    while (this.peek() !== '"' && this.peek() !== '') {
+    while (this.peek() !== '”' && this.peek() !== '') {
       if (this.peek() === '\n') this.newline();
       this.advance();
     }
@@ -159,18 +133,8 @@ class Tokenizer {
     this.addToken(tokenEnum.STRING, value);
   }
 
-  handleNumberLiterals() {
-    let hasDecimal = false;
-    while (isDigit(this.peek()) || (!hasDecimal && this.peek() === '.')) {
-      if (this.peek() === '.') hasDecimal = true;
-      this.advance();
-    }
-    const value = this.source.substring(this.start, this.current);
-    this.addToken(tokenEnum.NUMBER, parseFloat(value));
-  }
-
   handleIdentifiers() {
-    while (isNotBoundary(this.peek())) this.advance();
+    while (isIdentifierChar(this.peek())) this.advance();
     const value = this.source.substring(this.start, this.current);
     if (keywords[value]) {
       this.addToken(keywords[value], value);
@@ -184,9 +148,7 @@ class Tokenizer {
       const c = this.advance()
       this.startPosition = new Coordinate(this.column - 1, this.line, this.current - 1)
       if (!tokenMap[c]) {
-        if (isDigit(c)) {
-          this.handleNumberLiterals();
-        } else if (isAlpha(c)) {
+        if (isIdentifierChar(c)) {
           this.handleIdentifiers();
         } else {
           // Column isn't -1 because we haven't iterated column yet
@@ -266,4 +228,7 @@ class Token {
   }
 }
 
-module.exports = Tokenizer;
+module.exports = {
+  Tokenizer,
+  Token
+};

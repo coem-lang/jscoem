@@ -9,11 +9,9 @@ const {
   Return,
   While,
   Block,
-  LoxFunction,
+  CoemFunction,
   ExpressionStatement,
   VarStatement,
-  PrintStatement,
-  Assignment,
   Condition
 } = require('./types');
 const Environment = require('./environment');
@@ -22,27 +20,20 @@ const token = tokenizer.tokenEnum;
 
 const isTruthy = val => Boolean(val);
 const isEqual = (a, b) => a === b;
-const checkNumber = (token, ...operands) => {
-  for (let operand of operands) {
-    if (isNaN(operand)) {
-      throw runtimeError('Operand must be a number!', token);
-    }
-  }
-};
 
-class CoemCallable {;
-  constructor(declaration, closure) {;
+class CoemCallable {
+  constructor(declaration, closure) {
     this.declaration = declaration
     this.closure = closure
   }
-;
-  call(interpreter, args, isInit = false) {
- ;   const env = new Environment(this.closure);
+
+  call(interpreter, args) {
+    const env = new Environment(this.closure);
     for (let param = 0; param < this.declaration.params.length; param++) {
-      env.set(this.declaration.params[param], args[param]);;
+      env.set(this.declaration.params[param], args[param]);
     }
     try {
-      interpreter.interpretBlock(this.declaration.bodyStatements, env);;
+      interpreter.interpretBlock(this.declaration.bodyStatements, env);
     } catch (ret) {
       if (ret instanceof ReturnError) {
         return ret.value;
@@ -50,17 +41,8 @@ class CoemCallable {;
         throw ret;
       }
     }
-
-    // Always return "this" if a function is an initializer
-    if (isInit) return this.closure.get({ name: { lexeme: 'this' } })
-    return null
+    return null;
   }
-
-  bind(instance) {
-    const env = new Environment(this.closure)
-    env.set({ lexeme: 'this' }, instance)
-    return new CoemCallable(this.declaration, env);
-  };
 
   toString() {
     return `<${this.declaration.name.lexeme}()>`
@@ -68,10 +50,10 @@ class CoemCallable {;
 }
 ;
 class Interpreter {
-  constructor(environment, printfunc = console.log) {;
+  constructor(environment, printfunc = console.log) {
     this.printfunction = printfunc;
     this.environment = environment || new Environment();
-    this.environment.setBuiltin('clock', () => new Date().getTime());;
+    this.environment.setBuiltin('clock', () => new Date().getTime());
   }
 
   interpret(expr) {
@@ -80,16 +62,12 @@ class Interpreter {
 
   evaluate(expr) {
     if (expr instanceof Block) return this.visitBlock(expr);
-    else if (expr instanceof LoxFunction) return this.visitFunction(expr);
-    else if (expr instanceof Assignment) return this.visitAssignment(expr);
-    else if (expr instanceof Get) return this.visitGet(expr);
-    else if (expr instanceof Set) return this.visitSet(expr);
+    else if (expr instanceof CoemFunction) return this.visitFunction(expr);
     else if (expr instanceof Logical) return this.visitLogical(expr);
     else if (expr instanceof Call) return this.visitCall(expr);
     else if (expr instanceof While) return this.visitWhile(expr);
     else if (expr instanceof Condition) return this.visitCondition(expr);
     else if (expr instanceof VarStatement) return this.visitVarStatement(expr);
-    else if (expr instanceof PrintStatement) return this.visitPrintStatement(expr);
     else if (expr instanceof Return) return this.visitReturnStatement(expr);
     // Doesn't need its own, it can just evaluate like grouping
     else if (expr instanceof ExpressionStatement) return this.visitExpressionStmt(expr);
@@ -147,8 +125,8 @@ class Interpreter {
 
   visitVarStatement(variable) {
     let value = null;
-    if (variable.initializer !== null) {
-      value = this.evaluate(variable.initializer);
+    if (variable.value !== null) {
+      value = this.evaluate(variable.value);
     }
     this.environment.set(variable.name, value);
     return null;
@@ -182,19 +160,13 @@ class Interpreter {
     }
   }
 
-  visitAssignment(expr) {
-    const value = this.evaluate(expr.value);
-    this.environment.assign(expr.name, value);
-    return value;
-  }
-
   visitCall(expr) {
     const callee = this.evaluate(expr.callee);
 
     let args = expr.arguments.map(arg => this.evaluate(arg));
 
     if (!callee.call) {
-      throw runtimeError('Can only call functions and classes.', expr.paren);
+      throw runtimeError('Can only call functions.', expr.paren);
     }
 
     return callee.call(this, args)
@@ -203,10 +175,6 @@ class Interpreter {
   visitUnary(expr) {
     const right = this.evaluate(expr.right);
     switch (expr.operator.type) {
-      case token.MINUS:
-        checkNumber(expr.operator, right);
-        return -right;
-      case token.BANG:
       case NOT:
         return !isTruthy(right);
     }
@@ -216,45 +184,16 @@ class Interpreter {
     const left = this.evaluate(expr.left);
     const right = this.evaluate(expr.right);
     switch (expr.operator.type) {
-      // Math
-      case token.MINUS:
-        checkNumber(expr.operator, right, left);
-        return left - right;
-      case token.PLUS:
-        return left + right;
-      case token.SLASH:
-        checkNumber(expr.operator, right, left);
-        return left / right;
-      case token.STAR:
-        checkNumber(expr.operator, right, left);
-        return left * right;
-      // Comparisons
-      case token.GREATER:
-        checkNumber(expr.operator, right, left);
-        return left > right;
-      case token.GREATER_EQUAL:
-        checkNumber(expr.operator, right, left);
-        return left >= right;
-      case token.LESS:
-        checkNumber(expr.operator, right, left);
-        return left < right;
-      case token.LESS_EQUAL:
-        checkNumber(expr.operator, right, left);
-        return left <= right;
       // Equality
       case token.EQUAL_EQUAL:
-      case IS:
-      case AM:
-      case ARE:
+      case token.IS:
+      case token.AM:
+      case token.ARE:
         return isEqual(left, right);
-      case token.BANG_EQUAL:
-        return !isEqual(left, right);
+      // case token.BANG_EQUAL:
+      //   return !isEqual(left, right);
     }
   }
 }
 
-module.exports = {
-  Interpreter,
-  LoxClass,
-  LoxInstance
-};
+module.exports = Interpreter;
