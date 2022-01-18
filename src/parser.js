@@ -199,7 +199,7 @@ class Parser {
 
     if (!this.check(token.EMDASH)) {
       do {
-        if (args.size() >= 255) {
+        if (args.length >= 255) {
           throw ParseError("Can't have more than 255 arguments.", this.peek());
         }
         this.isParamListStarted = true;
@@ -208,7 +208,7 @@ class Parser {
       } while (this.match(token.COMMA));
     }
 
-    const dash = this.consume(token.EMDASH, "Expect ')' after arguments.");
+    const dash = this.consume(token.EMDASH, "Expect '—' after arguments.");
 
     return new Call(callee, dash, args);
   }
