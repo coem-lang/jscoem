@@ -58,7 +58,7 @@ class Parser {
     let params = [];
     if (!this.check(token.EMDASH)) {
       do {
-        if (params.size() >= 255) {
+        if (params.length >= 255) {
           throw ParseError("Can't have more than 255 arguments.", this.peek());
         }
 
