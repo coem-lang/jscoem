@@ -54,7 +54,13 @@ class Interpreter {
     this.printfunction = printfunc;
     this.environment = environment || new Environment();
     this.environment.setBuiltin('clock', () => new Date().getTime());
-    const nativePrint = (args) => this.printfunction(...args);
+    const nativePrint = (args) => {
+      if (args[0] === null) {
+        this.printfunction("nothing");
+      } else {
+        this.printfunction(...args);
+      }
+    }
     this.environment.setBuiltin('print', nativePrint);
     this.environment.setBuiltin('know', nativePrint);
     this.environment.setBuiltin('say', nativePrint);
