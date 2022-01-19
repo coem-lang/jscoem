@@ -255,10 +255,10 @@ class Parser {
     if (expr instanceof Call) {
       const callee = expr.callee;
       if (!callee.name === "print") {
-        wrapped = printExpression(expr);
+        wrapped = this.printExpression(expr);
       }
     } else {
-      wrapped = printExpression(expr);
+      wrapped = this.printExpression(expr);
     }
 
     return new ExpressionStatement(wrapped);
