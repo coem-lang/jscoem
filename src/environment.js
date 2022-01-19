@@ -46,7 +46,7 @@ class Environment {
       let enclosingSet = this.enclosing.getSet(name);
       // redefine in enclosing environment
       if (enclosingSet) {
-        return this.enclosing.set(token, value);
+        return this.enclosing.setNameValue(name, value);
       }
     }
     
