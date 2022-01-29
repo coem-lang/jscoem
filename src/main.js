@@ -29,12 +29,12 @@ function parse(code) {
   return statements;
 }
 
-export { formatCoemError } from './errors.js';
-export {
-  run,
-  parse,
-  Parser,
-  Tokenizer,
-  Interpreter,
-  Environment
-};
+// export { formatCoemError } from './errors.js';
+// export {
+//   run,
+//   parse,
+//   Parser,
+//   Tokenizer,
+//   Interpreter,
+//   Environment
+// };
