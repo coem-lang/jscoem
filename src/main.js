@@ -29,6 +29,7 @@ function parse(code) {
   return statements;
 }
 
+export { formatCoemError } from './errors.js';
 export {
   run,
   parse,
