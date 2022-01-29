@@ -1,6 +1,6 @@
-const { run, Environment } = require("./src/coem.js");
+import { run, Environment } from './src/main.js';
 
-const source = `print—true, false—`;
+const source = `nothing`;
 
 function handleError(e, source = "") {
   if (!e) return null;

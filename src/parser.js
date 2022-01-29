@@ -1,5 +1,6 @@
-const tokenizer = require('./tokenizer');
-const {
+import './tokenizer.js';
+import { Tokenizer, Token } from './tokenizer.js';
+import {
   Binary,
   Unary,
   Var,
@@ -13,9 +14,9 @@ const {
   Logical,
   Block,
   Condition
-} = require('./types');
-const { parseError: ParseError } = require('./errors');
-const token = tokenizer.tokenEnum;
+} from './types.js';
+import { parseError as ParseError } from './errors.js';
+const token = Tokenizer.tokenEnum;
 
 class Parser {
   constructor(tokens) {
@@ -265,9 +266,9 @@ class Parser {
   }
 
   printExpression(expr) {
-    const printToken = new Token(token.IDENTIFIER, "print", null, peek().endCoordinates, peek().startCoordinates);
+    const printToken = new Token(token.IDENTIFIER, "print", null, this.peek().endCoordinates, this.peek().startCoordinates);
     const printExpr = new Var(printToken);
-    const dash = new Token(token.emdash, "—", NULL, peek().endCoordinates, peek().startCoordinates);
+    const dash = new Token(token.emdash, "—", null, this.peek().endCoordinates, this.peek().startCoordinates);
     let args = [expr];
     const call = new Call(printExpr, dash, args);
     return call;
@@ -318,4 +319,4 @@ class Parser {
   }
 }
 
-module.exports = Parser;
+export { Parser };

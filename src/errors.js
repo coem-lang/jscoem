@@ -76,11 +76,11 @@ const formatCoemError = (e, code) => {
   }
 }
 
-module.exports = {
+export {
   error,
   CoemError,
   ReturnError,
   runtimeError,
   parseError,
   formatCoemError
-};
+}

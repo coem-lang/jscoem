@@ -1,10 +1,10 @@
 // adapted from YALI.js by Daniel Berezin (danman113)
 // https://github.com/danman113/YALI.js
 
-const Tokenizer = require('./tokenizer');
-const Parser = require('./parser');
-const Interpreter = require('./interpreter');
-const Environment = require('./environment');
+import { Tokenizer } from './tokenizer.js';
+import { Parser } from './parser.js';
+import { Interpreter } from './interpreter.js';
+import { Environment } from './environment.js';
 
 function run(code, environment, printfn, debug = false) {
   const tokenizer = new Tokenizer(code);
@@ -29,7 +29,7 @@ function parse(code) {
   return statements;
 }
 
-module.exports = {
+export {
   run,
   parse,
   Parser,

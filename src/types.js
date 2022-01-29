@@ -91,7 +91,7 @@ class Directive {
   }
 }
 
-module.exports = {
+export {
   Var,
   Binary,
   Unary,
@@ -106,4 +106,4 @@ module.exports = {
   ExpressionStatement,
   VarStatement,
   Directive
-}
+};

@@ -1,4 +1,4 @@
-const { CoemError } = require('./errors');
+import { CoemError } from './errors.js';
 const noop = () => {};
 
 const tokens = `
@@ -228,4 +228,4 @@ class Token {
   }
 }
 
-module.exports = Tokenizer;
+export { Tokenizer, Token };

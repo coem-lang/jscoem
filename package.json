@@ -1,9 +1,11 @@
 {
   "name": "jscoem",
   "version": "1.0.0",
+  "type": "module",
   "description": "JavaScript implementation of Coem.",
   "scripts": {
     "start": "node index.js",
+    "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/coem-lang/jscoem/issues"
   },
-  "homepage": "https://github.com/coem-lang/jscoem#readme"
+  "homepage": "https://github.com/coem-lang/jscoem#readme",
+  "devDependencies": {
+    "rollup": "^2.66.1"
+  }
 }

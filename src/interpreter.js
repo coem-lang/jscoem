@@ -1,5 +1,5 @@
-const { runtimeError, ReturnError } = require('./errors');
-const {
+import { runtimeError, ReturnError } from './errors.js';
+import {
   Binary,
   Unary,
   Call,
@@ -13,10 +13,10 @@ const {
   ExpressionStatement,
   VarStatement,
   Condition
-} = require('./types');
-const Environment = require('./environment');
-const tokenizer = require('./tokenizer');
-const token = tokenizer.tokenEnum;
+} from './types.js';
+import { Environment } from './environment.js';
+import { Tokenizer } from './tokenizer.js';
+const token = Tokenizer.tokenEnum;
 
 const isTruthy = val => Boolean(val);
 const isEqual = (a, b) => a === b;
@@ -205,4 +205,4 @@ class Interpreter {
   }
 }
 
-module.exports = Interpreter;
+export { Interpreter };

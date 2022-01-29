@@ -1,4 +1,4 @@
-const { runtimeError } = require('./errors');
+import { runtimeError } from './errors.js';
 
 class Environment {
   constructor(enclosing = null) {
@@ -60,4 +60,4 @@ class Environment {
   }
 }
 
-module.exports = Environment;
+export { Environment };
