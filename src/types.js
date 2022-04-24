@@ -91,6 +91,12 @@ class Directive {
   }
 }
 
+class Comment {
+  constructor(text) {
+    this.text = text;
+  }
+}
+
 export {
   Var,
   Binary,
@@ -105,5 +111,6 @@ export {
   Condition,
   ExpressionStatement,
   VarStatement,
-  Directive
+  Directive,
+  Comment
 };

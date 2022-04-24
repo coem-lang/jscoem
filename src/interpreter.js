@@ -12,7 +12,9 @@ import {
   CoemFunction,
   ExpressionStatement,
   VarStatement,
-  Condition
+  Condition,
+  Directive,
+  Comment
 } from './types.js';
 import { Environment } from './environment.js';
 import { Tokenizer } from './tokenizer.js';
@@ -93,11 +95,12 @@ class Interpreter {
   visitExpressionStmt(expr) {
     return this.evaluate(expr.expression);
   }
-  visitPrintStatement(expr) {
-    const val = this.evaluate(expr.expression);
-    this.printfunction(val === null ? 'nil' : val.toString());
-    return val;
-  }
+  // visitPrintStatement(expr) {
+  //   console.log(expr);
+  //   const val = this.evaluate(expr.expression);
+  //   this.printfunction(val === null ? 'nothing' : val.toString());
+  //   return val;
+  // }
 
   visitFunction(expr) {
     const fn = new CoemCallable(expr, this.environment);
@@ -119,6 +122,15 @@ class Interpreter {
     while (isTruthy(this.evaluate(expr.condition))) {
       this.evaluate(expr.body);
     }
+    return null;
+  }
+
+  visitDirective(expr) {
+    this.environment.set(expr.name, expr.value);
+    return null;
+  }
+
+  visitComment(expr) {
     return null;
   }
 
@@ -171,6 +183,7 @@ class Interpreter {
   }
 
   visitCall(expr) {
+    console.log(expr.callee.name.startCoordinates.line);
     const callee = this.evaluate(expr.callee);
 
     let args = expr.arguments.map(arg => this.evaluate(arg));

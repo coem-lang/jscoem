@@ -13,7 +13,9 @@ import {
   VarStatement,
   Logical,
   Block,
-  Condition
+  Condition,
+  Directive,
+  Comment
 } from './types.js';
 import { parseError as ParseError } from './errors.js';
 const token = Tokenizer.tokenEnum;
@@ -38,6 +40,7 @@ class Parser {
   }
 
   declaration() {
+    if (this.match(token.DAGGER)) return this.comment();
     if (this.match(token.POUND)) return this.directive();
     if (this.match(token.TO)) return this.function();
     if (this.match(token.LET)) return this.varDeclaration();
@@ -49,8 +52,13 @@ class Parser {
     if (this.match(token.IDENTIFIER, token.BE)) {
       const name = this.previous();
       const value = this.consume(token.IDENTIFIER, "Expect value after directive name.");
-      return new DirectiveStatement(name, value);
+      return new Directive(name, value);
     }
+  }
+
+  comment() {
+    const text = this.advance();
+    return new Comment(text);
   }
 
   function() {

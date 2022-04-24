@@ -9,7 +9,7 @@ import { Environment } from './environment.js';
 function run(code, environment, printfn, debug = false) {
   const tokenizer = new Tokenizer(code);
   const tokens = tokenizer.scanTokens();
-  if (debug) console.log(tokens);
+  // if (debug) console.log(tokens);
   const parser = new Parser(tokens);
   const statements = parser.parse();
   if (debug) console.log(statements);
@@ -29,12 +29,12 @@ function parse(code) {
   return statements;
 }
 
-// export { formatCoemError } from './errors.js';
-// export {
-//   run,
-//   parse,
-//   Parser,
-//   Tokenizer,
-//   Interpreter,
-//   Environment
-// };
+export { formatCoemError } from './errors.js';
+export {
+  run,
+  parse,
+  Parser,
+  Tokenizer,
+  Interpreter,
+  Environment
+};

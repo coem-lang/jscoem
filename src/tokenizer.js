@@ -7,8 +7,10 @@ const tokens = `
   EMDASH,
   AMPERSAND,
   POUND,
+  DAGGER,
 
   IDENTIFIER, STRING,
+  COMMENT,
 
   AND, OR,
   IS, AM, ARE,
@@ -17,6 +19,8 @@ const tokens = `
   TO, 
   TRUE, FALSE, NOTHING,
   NOT,
+
+  THIS, HERE, NOW,
 
   NEWLINE,
 
@@ -69,7 +73,8 @@ const tokenMap = {
   },
   '†': tokenizer => {
     // comments
-    while (tokenizer.peek() !== '\n' && tokenizer.peek() !== '') tokenizer.advance();
+    // while (tokenizer.peek() !== '\n' && tokenizer.peek() !== '') tokenizer.advance();
+    tokenizer.handleComments();
   },
   ' ': noop,
   '\t': noop,
@@ -131,6 +136,17 @@ class Tokenizer {
     // Trim the surrounding quotes.
     const value = this.source.substring(this.start + 1, this.current - 1);
     this.addToken(tokenEnum.STRING, value);
+  }
+
+  handleComments() {
+    this.addToken(tokenEnum.DAGGER);
+
+    while (this.peek() !== '\n' && this.peek() !== '') {
+      this.advance();
+    }
+
+    const text = this.source.substring(this.start + 1, this.current);
+    this.addToken(tokenEnum.STRING, text);
   }
 
   handleIdentifiers() {
@@ -207,6 +223,15 @@ class Tokenizer {
     if (this.peek() !== expected) return false;
     this.increment();
     return true;
+  }
+
+  untokenize(tokens) {
+    let text = "";
+    let line = 1;
+    let col = 1;
+    for (let token of tokens) {
+      console.log(token);
+    }
   }
 }
 
