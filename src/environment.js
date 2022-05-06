@@ -15,8 +15,11 @@ class Environment {
     // if not found in this environment, try enclosing one
     if (this.enclosing) return this.enclosing.get(token);
 
+    // return the variable name as a string
+    return token.name.lexeme;
+
     // if not found after recursively walking up the chain, throw error
-    throw runtimeError(`Undefined variable '${token.name.lexeme}'.`, token.name);
+    // throw runtimeError(`Undefined variable '${token.name.lexeme}'.`, token.name);
   }
 
   getSet(name) {
