@@ -62,9 +62,9 @@ class While {
 }
 
 class Call {
-  constructor(callee, paren, args) {
+  constructor(callee, dash, args) {
     this.callee = callee
-    this.paren = paren
+    this.dash = dash
     this.arguments = args
   }
 }

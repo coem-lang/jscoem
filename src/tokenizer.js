@@ -224,15 +224,6 @@ class Tokenizer {
     this.increment();
     return true;
   }
-
-  untokenize(tokens) {
-    let text = "";
-    let line = 1;
-    let col = 1;
-    for (let token of tokens) {
-      console.log(token);
-    }
-  }
 }
 
 class Coordinate {

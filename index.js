@@ -1,6 +1,6 @@
 import { run, Environment } from './src/main.js';
 
-const source = `nothing`;
+const source = `know—“something”—`;
 
 function handleError(e, source = "") {
   if (!e) return null;
@@ -13,7 +13,9 @@ function handleOutput(...txt) {
 
 const browserEnv = new Environment();
 try {
-  run(source, browserEnv, handleOutput);
+  // console.log(run(source, browserEnv, handleOutput, false));
+  let echo = run(source, browserEnv, false);
+  console.log(echo);
   handleError(null);
 } catch (e) {
   handleError(e, source);

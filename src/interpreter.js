@@ -29,7 +29,8 @@ class CoemCallable {
     this.closure = closure
   }
 
-  call(interpreter, args) {
+  // call(interpreter, args) {
+  call(interpreter, args, callee) {
     const env = new Environment(this.closure);
     for (let param = 0; param < this.declaration.params.length; param++) {
       env.set(this.declaration.params[param], args[param]);
@@ -52,15 +53,40 @@ class CoemCallable {
 }
 ;
 class Interpreter {
-  constructor(environment, printfunc = console.log) {
-    this.printfunction = printfunc;
+  // constructor(environment, printfunc = console.log) {
+  constructor(environment, source) {
+    // this.printfunction = printfunc;
     this.environment = environment || new Environment();
-    this.environment.setBuiltin('clock', () => new Date().getTime());
-    const nativePrint = (args) => {
-      if (args[0] === null) {
-        this.printfunction("nothing");
+
+    this.source = source;
+    this.echo = source;
+    this.lines = [];
+    const linesWhole = source.split("\n");
+    for (let line of linesWhole) {
+      if (line.trim().indexOf(" †") > -1) {
+        this.lines.push(line.split(" †"));
       } else {
-        this.printfunction(...args);
+        this.lines.push([line]);
+      }
+    }
+
+    const nativePrint = new CoemCallable(null, this.env);
+    nativePrint.call = (interpreter, args, callee) => {
+      let print = " ";
+      let line = callee.name.startCoordinates.line - 1;
+      if (args.length >= 1) {
+        print += args[0];
+        if (args.length > 1) {
+          for (let arg of args) {
+            print += " " + arg;
+          }
+        }
+      }
+
+      if (this.lines[line].length > 1) {
+        this.lines[line][1] += print;
+      } else {
+        this.lines[line].push(print);
       }
     }
     this.environment.setBuiltin('print', nativePrint);
@@ -183,16 +209,15 @@ class Interpreter {
   }
 
   visitCall(expr) {
-    console.log(expr.callee.name.startCoordinates.line);
     const callee = this.evaluate(expr.callee);
 
     let args = expr.arguments.map(arg => this.evaluate(arg));
 
     if (!callee.call) {
-      throw runtimeError('Can only call functions.', expr.paren);
+      throw runtimeError('Can only call functions.', expr.dash);
     }
 
-    return callee.call(this, args)
+    return callee.call(this, args, expr.callee)
   }
 
   visitUnary(expr) {
@@ -215,6 +240,20 @@ class Interpreter {
       // case token.BANG_EQUAL:
       //   return !isEqual(left, right);
     }
+  }
+
+  getEcho() {
+    let echo = "";
+    for (let i = 0; i < this.lines.length; i++) {
+      if (this.lines[i].length > 1) {
+        const line = this.lines[i].join(" †");
+        echo += line;
+      } else {
+        echo += this.lines[i][0];
+      }
+      echo += "\n";
+    }
+    return echo;
   }
 }
 
