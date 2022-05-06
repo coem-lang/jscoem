@@ -28,10 +28,6 @@ class ReturnError {
   }
 }
 
-const error = (msg, startCoordinates, endCoordinates) => {
-  new CoemError(msg, startCoordinates, endCoordinates);
-};
-
 const parseError = (msg, token) => {
   if (token.type === token.EOF) {
     return new CoemError(msg, token.startCoordinates, token.endCoordinates);
@@ -84,8 +80,10 @@ const tokens = `
   EMDASH,
   AMPERSAND,
   POUND,
+  DAGGER,
 
   IDENTIFIER, STRING,
+  COMMENT,
 
   AND, OR,
   IS, AM, ARE,
@@ -94,6 +92,8 @@ const tokens = `
   TO, 
   TRUE, FALSE, NOTHING,
   NOT,
+
+  THIS, HERE, NOW,
 
   NEWLINE,
 
@@ -146,7 +146,8 @@ const tokenMap = {
   },
   '†': tokenizer => {
     // comments
-    while (tokenizer.peek() !== '\n' && tokenizer.peek() !== '') tokenizer.advance();
+    // while (tokenizer.peek() !== '\n' && tokenizer.peek() !== '') tokenizer.advance();
+    tokenizer.handleComments();
   },
   ' ': noop,
   '\t': noop,
@@ -208,6 +209,17 @@ class Tokenizer {
     // Trim the surrounding quotes.
     const value = this.source.substring(this.start + 1, this.current - 1);
     this.addToken(tokenEnum.STRING, value);
+  }
+
+  handleComments() {
+    this.addToken(tokenEnum.DAGGER);
+
+    while (this.peek() !== '\n' && this.peek() !== '') {
+      this.advance();
+    }
+
+    const text = this.source.substring(this.start + 1, this.current);
+    this.addToken(tokenEnum.STRING, text);
   }
 
   handleIdentifiers() {
@@ -369,9 +381,9 @@ class While {
 }
 
 class Call {
-  constructor(callee, paren, args) {
+  constructor(callee, dash, args) {
     this.callee = callee;
-    this.paren = paren;
+    this.dash = dash;
     this.arguments = args;
   }
 }
@@ -398,6 +410,12 @@ class Directive {
   }
 }
 
+class Comment {
+  constructor(text) {
+    this.text = text;
+  }
+}
+
 const token$1 = Tokenizer.tokenEnum;
 
 class Parser {
@@ -420,6 +438,7 @@ class Parser {
   }
 
   declaration() {
+    if (this.match(token$1.DAGGER)) return this.comment();
     if (this.match(token$1.POUND)) return this.directive();
     if (this.match(token$1.TO)) return this.function();
     if (this.match(token$1.LET)) return this.varDeclaration();
@@ -431,8 +450,13 @@ class Parser {
     if (this.match(token$1.IDENTIFIER, token$1.BE)) {
       const name = this.previous();
       const value = this.consume(token$1.IDENTIFIER, "Expect value after directive name.");
-      return new DirectiveStatement(name, value);
+      return new Directive(name, value);
     }
+  }
+
+  comment() {
+    const text = this.advance();
+    return new Comment(text);
   }
 
   function() {
@@ -716,8 +740,11 @@ class Environment {
     // if not found in this environment, try enclosing one
     if (this.enclosing) return this.enclosing.get(token);
 
+    // return the variable name as a string
+    return token.name.lexeme;
+
     // if not found after recursively walking up the chain, throw error
-    throw runtimeError(`Undefined variable '${token.name.lexeme}'.`, token.name);
+    // throw runtimeError(`Undefined variable '${token.name.lexeme}'.`, token.name);
   }
 
   getSet(name) {
@@ -772,7 +799,8 @@ class CoemCallable {
     this.closure = closure;
   }
 
-  call(interpreter, args) {
+  // call(interpreter, args) {
+  call(interpreter, args, callee) {
     const env = new Environment(this.closure);
     for (let param = 0; param < this.declaration.params.length; param++) {
       env.set(this.declaration.params[param], args[param]);
@@ -793,17 +821,41 @@ class CoemCallable {
     return `<${this.declaration.name.lexeme}()>`
   };
 }
-;
 class Interpreter {
-  constructor(environment, printfunc = console.log) {
-    this.printfunction = printfunc;
+  // constructor(environment, printfunc = console.log) {
+  constructor(environment, source) {
+    // this.printfunction = printfunc;
     this.environment = environment || new Environment();
-    this.environment.setBuiltin('clock', () => new Date().getTime());
-    const nativePrint = (args) => {
-      if (args[0] === null) {
-        this.printfunction("nothing");
+
+    this.source = source;
+    this.echo = source;
+    this.lines = [];
+    const linesWhole = source.split("\n");
+    for (let line of linesWhole) {
+      if (line.trim().indexOf(" †") > -1) {
+        this.lines.push(line.split(" †"));
       } else {
-        this.printfunction(...args);
+        this.lines.push([line]);
+      }
+    }
+
+    const nativePrint = new CoemCallable(null, this.env);
+    nativePrint.call = (interpreter, args, callee) => {
+      let print = " ";
+      let line = callee.name.startCoordinates.line - 1;
+      if (args.length >= 1) {
+        print += args[0];
+        if (args.length > 1) {
+          for (let arg of args) {
+            print += " " + arg;
+          }
+        }
+      }
+
+      if (this.lines[line].length > 1) {
+        this.lines[line][1] += print;
+      } else {
+        this.lines[line].push(print);
       }
     };
     this.environment.setBuiltin('print', nativePrint);
@@ -838,11 +890,12 @@ class Interpreter {
   visitExpressionStmt(expr) {
     return this.evaluate(expr.expression);
   }
-  visitPrintStatement(expr) {
-    const val = this.evaluate(expr.expression);
-    this.printfunction(val === null ? 'nil' : val.toString());
-    return val;
-  }
+  // visitPrintStatement(expr) {
+  //   console.log(expr);
+  //   const val = this.evaluate(expr.expression);
+  //   this.printfunction(val === null ? 'nothing' : val.toString());
+  //   return val;
+  // }
 
   visitFunction(expr) {
     const fn = new CoemCallable(expr, this.environment);
@@ -864,6 +917,15 @@ class Interpreter {
     while (isTruthy(this.evaluate(expr.condition))) {
       this.evaluate(expr.body);
     }
+    return null;
+  }
+
+  visitDirective(expr) {
+    this.environment.set(expr.name, expr.value);
+    return null;
+  }
+
+  visitComment(expr) {
     return null;
   }
 
@@ -921,10 +983,10 @@ class Interpreter {
     let args = expr.arguments.map(arg => this.evaluate(arg));
 
     if (!callee.call) {
-      throw runtimeError('Can only call functions.', expr.paren);
+      throw runtimeError('Can only call functions.', expr.dash);
     }
 
-    return callee.call(this, args)
+    return callee.call(this, args, expr.callee)
   }
 
   visitUnary(expr) {
@@ -948,23 +1010,40 @@ class Interpreter {
       //   return !isEqual(left, right);
     }
   }
+
+  getEcho() {
+    let echo = "";
+    for (let i = 0; i < this.lines.length; i++) {
+      if (this.lines[i].length > 1) {
+        const line = this.lines[i].join(" †");
+        echo += line;
+      } else {
+        echo += this.lines[i][0];
+      }
+      echo += "\n";
+    }
+    return echo;
+  }
 }
 
 // adapted from YALI.js by Daniel Berezin (danman113)
 
-function run(code, environment, printfn, debug = false) {
+// function run(code, environment, printfn, debug = false) {
+function run(code, environment, debug = false) {
   const tokenizer = new Tokenizer(code);
   const tokens = tokenizer.scanTokens();
-  if (debug) console.log(tokens);
+  // if (debug) console.log(tokens);
   const parser = new Parser(tokens);
   const statements = parser.parse();
   if (debug) console.log(statements);
-  const interpreter = new Interpreter(environment, printfn);
-  let lastStatement;
+  // const interpreter = new Interpreter(environment, printfn);
+  const interpreter = new Interpreter(environment, code);
   for (let statement of statements) {
-    lastStatement = interpreter.interpret(statement);
+    interpreter.interpret(statement);
   }
-  return lastStatement;
+  const echo = interpreter.getEcho();
+  return echo;
+  // return lastStatement;
 }
 
 function parse(code) {
@@ -975,12 +1054,4 @@ function parse(code) {
   return statements;
 }
 
-// export { formatCoemError } from './errors.js';
-// export {
-//   run,
-//   parse,
-//   Parser,
-//   Tokenizer,
-//   Interpreter,
-//   Environment
-// };
+export { Environment, Interpreter, Parser, Tokenizer, formatCoemError, parse, run };
