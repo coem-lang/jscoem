@@ -726,6 +726,7 @@ class Parser {
 }
 
 class Environment {
+
   constructor(enclosing = null) {
     this.values = new Map();
     this.enclosing = enclosing;
@@ -762,12 +763,21 @@ class Environment {
   }
 
   setNameValue(name, value) {
+    if (name === "as" && value.literal === "palimpsest") {
+      Environment.asPalimpsest = true;
+      return;
+    }
+
     let pattern = new RegExp(name);
     let set = this.getSet(name);
 
     // redefine in current environment
     if (set) {
-      return this.values.set(set[0], value);
+      if (Environment.asPalimpsest) {
+        let values = set[1];
+        values.push(value);
+      }
+      return this.values.set(pattern, value);
     }
 
     if (this.enclosing) {
@@ -777,9 +787,13 @@ class Environment {
         return this.enclosing.setNameValue(name, value);
       }
     }
-    
+
     // define new in current environment
-    return this.values.set(pattern, value);
+    if (Environment.asPalimpsest) {
+      return this.values.set(pattern, [value]);
+    } else {
+      return this.values.set(pattern, value);
+    }
   }
 
   setBuiltin(name, func) {
@@ -787,6 +801,8 @@ class Environment {
     this.setNameValue(name, func);
   }
 }
+
+Environment.asPalimpsest = false;
 
 const token = Tokenizer.tokenEnum;
 
@@ -844,10 +860,10 @@ class Interpreter {
       let print = " ";
       let line = callee.name.startCoordinates.line - 1;
       if (args.length >= 1) {
-        print += args[0];
+        print += getArgPrint(args[0]);
         if (args.length > 1) {
-          for (let arg of args) {
-            print += " " + arg;
+          for (let i = 1; i < args.length; i++) {
+            print += " " + getArgPrint(args[i]);
           }
         }
       }
@@ -858,6 +874,14 @@ class Interpreter {
         this.lines[line].push(print);
       }
     };
+
+    const getArgPrint = (arg) => {
+      if (Array.isArray(arg)) {
+        return arg.join(", ");
+      }
+      return arg;
+    };
+
     this.environment.setBuiltin('print', nativePrint);
     this.environment.setBuiltin('know', nativePrint);
     this.environment.setBuiltin('say', nativePrint);
@@ -873,6 +897,7 @@ class Interpreter {
     else if (expr instanceof Logical) return this.visitLogical(expr);
     else if (expr instanceof Call) return this.visitCall(expr);
     else if (expr instanceof While) return this.visitWhile(expr);
+    else if (expr instanceof Directive) return this.visitDirective(expr);
     else if (expr instanceof Condition) return this.visitCondition(expr);
     else if (expr instanceof VarStatement) return this.visitVarStatement(expr);
     else if (expr instanceof Return) return this.visitReturnStatement(expr);
@@ -1056,4 +1081,4 @@ function parse(code) {
   return statements;
 }
 
-// export { Environment, Interpreter, Parser, Tokenizer, formatCoemError, parse, run };
+export { Environment, Interpreter, Parser, Tokenizer, formatCoemError, parse, run };

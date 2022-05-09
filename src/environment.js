@@ -1,6 +1,7 @@
 import { runtimeError } from './errors.js';
 
 class Environment {
+
   constructor(enclosing = null) {
     this.values = new Map();
     this.enclosing = enclosing;
@@ -37,12 +38,21 @@ class Environment {
   }
 
   setNameValue(name, value) {
+    if (name === "as" && value.literal === "palimpsest") {
+      Environment.asPalimpsest = true;
+      return;
+    }
+
     let pattern = new RegExp(name);
     let set = this.getSet(name);
 
     // redefine in current environment
     if (set) {
-      return this.values.set(set[0], value);
+      if (Environment.asPalimpsest) {
+        let values = set[1];
+        values.push(value);
+      }
+      return this.values.set(pattern, value);
     }
 
     if (this.enclosing) {
@@ -52,9 +62,13 @@ class Environment {
         return this.enclosing.setNameValue(name, value);
       }
     }
-    
+
     // define new in current environment
-    return this.values.set(pattern, value);
+    if (Environment.asPalimpsest) {
+      return this.values.set(pattern, [value]);
+    } else {
+      return this.values.set(pattern, value);
+    }
   }
 
   setBuiltin(name, func) {
@@ -62,5 +76,7 @@ class Environment {
     this.setNameValue(name, func);
   }
 }
+
+Environment.asPalimpsest = false;
 
 export { Environment };

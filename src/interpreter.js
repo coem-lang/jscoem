@@ -75,10 +75,10 @@ class Interpreter {
       let print = " ";
       let line = callee.name.startCoordinates.line - 1;
       if (args.length >= 1) {
-        print += args[0];
+        print += getArgPrint(args[0]);
         if (args.length > 1) {
-          for (let arg of args) {
-            print += " " + arg;
+          for (let i = 1; i < args.length; i++) {
+            print += " " + getArgPrint(args[i]);
           }
         }
       }
@@ -89,6 +89,14 @@ class Interpreter {
         this.lines[line].push(print);
       }
     }
+
+    const getArgPrint = (arg) => {
+      if (Array.isArray(arg)) {
+        return arg.join(", ");
+      }
+      return arg;
+    }
+
     this.environment.setBuiltin('print', nativePrint);
     this.environment.setBuiltin('know', nativePrint);
     this.environment.setBuiltin('say', nativePrint);
@@ -104,6 +112,7 @@ class Interpreter {
     else if (expr instanceof Logical) return this.visitLogical(expr);
     else if (expr instanceof Call) return this.visitCall(expr);
     else if (expr instanceof While) return this.visitWhile(expr);
+    else if (expr instanceof Directive) return this.visitDirective(expr);
     else if (expr instanceof Condition) return this.visitCondition(expr);
     else if (expr instanceof VarStatement) return this.visitVarStatement(expr);
     else if (expr instanceof Return) return this.visitReturnStatement(expr);

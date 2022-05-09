@@ -1,6 +1,9 @@
 import { run, Environment } from './src/main.js';
 
-const source = `know—“something”—`;
+const source = `#as palimpsest
+let me|myself be woman
+let me be “fearless”
+know—myself—`;
 
 function handleError(e, source = "") {
   if (!e) return null;
