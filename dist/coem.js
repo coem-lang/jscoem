@@ -1020,7 +1020,9 @@ class Interpreter {
       } else {
         echo += this.lines[i][0];
       }
-      echo += "\n";
+      if (i < this.lines.length - 1) {
+        echo += "\n";
+      }
     }
     return echo;
   }
@@ -1054,4 +1056,4 @@ function parse(code) {
   return statements;
 }
 
-// export { Environment, Interpreter, Parser, Tokenizer, formatCoemError, parse, run };
+export { Environment, Interpreter, Parser, Tokenizer, formatCoemError, parse, run };
