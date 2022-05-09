@@ -251,7 +251,9 @@ class Interpreter {
       } else {
         echo += this.lines[i][0];
       }
-      echo += "\n";
+      if (i < this.lines.length - 1) {
+        echo += "\n";
+      }
     }
     return echo;
   }
