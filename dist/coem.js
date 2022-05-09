@@ -1056,4 +1056,4 @@ function parse(code) {
   return statements;
 }
 
-export { Environment, Interpreter, Parser, Tokenizer, formatCoemError, parse, run };
+// export { Environment, Interpreter, Parser, Tokenizer, formatCoemError, parse, run };
