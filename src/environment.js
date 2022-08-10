@@ -52,7 +52,7 @@ class Environment {
         let values = set[1];
         values.push(value);
       }
-      return this.values.set(pattern, value);
+      return this.values.set(set[0], value);
     }
 
     if (this.enclosing) {
