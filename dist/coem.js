@@ -777,7 +777,7 @@ class Environment {
         let values = set[1];
         values.push(value);
       }
-      return this.values.set(pattern, value);
+      return this.values.set(set[0], value);
     }
 
     if (this.enclosing) {
@@ -1059,7 +1059,7 @@ class Interpreter {
 function run(code, environment, debug = false) {
   const tokenizer = new Tokenizer(code);
   const tokens = tokenizer.scanTokens();
-  // if (debug) console.log(tokens);
+  if (debug) console.log(tokens);
   const parser = new Parser(tokens);
   const statements = parser.parse();
   if (debug) console.log(statements);
