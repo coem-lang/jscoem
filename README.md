@@ -13,6 +13,10 @@ To run in the command line:
 npm start
 ```
 
+To debug:
+
+I use VS Code's Node debug tools.
+
 To build to `dist/coem.js`:
 ```
 npm run build
