@@ -431,7 +431,9 @@ class Parser {
       while (this.check(token$1.NEWLINE)) {
         this.consume(token$1.NEWLINE, "Expect newline between statements.");
       }
-      statements.push(this.declaration());
+      if (!this.isAtEnd) {
+        statements.push(this.declaration());
+      }
     }
 
     return statements;
