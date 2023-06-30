@@ -778,8 +778,10 @@ class Environment {
       if (Environment.asPalimpsest) {
         let values = set[1];
         values.push(value);
+        return this.values.set(set[0], values);
+      } else {
+        return this.values.set(set[0], value);
       }
-      return this.values.set(set[0], value);
     }
 
     if (this.enclosing) {
