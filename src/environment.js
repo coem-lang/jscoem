@@ -1,10 +1,10 @@
-import { runtimeError } from './errors.js';
+import { runtimeError } from "./errors.js";
 
 class Environment {
-
   constructor(enclosing = null) {
     this.values = new Map();
     this.enclosing = enclosing;
+    this.asPalimpsest = false;
   }
 
   get(token) {
@@ -39,7 +39,7 @@ class Environment {
 
   setNameValue(name, value) {
     if (name === "as" && value.literal === "palimpsest") {
-      Environment.asPalimpsest = true;
+      this.asPalimpsest = true;
       return;
     }
 
@@ -48,7 +48,7 @@ class Environment {
 
     // redefine in current environment
     if (set) {
-      if (Environment.asPalimpsest) {
+      if (this.asPalimpsest) {
         let values = set[1];
         values.push(value);
         return this.values.set(set[0], values);
@@ -66,7 +66,7 @@ class Environment {
     }
 
     // define new in current environment
-    if (Environment.asPalimpsest) {
+    if (this.asPalimpsest) {
       return this.values.set(pattern, [value]);
     } else {
       return this.values.set(pattern, value);
@@ -78,7 +78,5 @@ class Environment {
     this.setNameValue(name, func);
   }
 }
-
-Environment.asPalimpsest = false;
 
 export { Environment };
