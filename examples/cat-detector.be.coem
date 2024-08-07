@@ -1,0 +1,12 @@
+#in dialogue
+
+let cat be learn—“how you say 🐈”—
+
+if—cat is “chat”—:
+  know—“français”—.
+
+if—cat is “kat”—:
+  know—vlaamse—.
+
+if—cat is “katze”—:
+  know—Deutsche—.
