@@ -24,9 +24,9 @@
 
       echo.addEventListener("click", () => {
         try {
-          const echoed = run(coem.value, new Environment(), debug.checked);
-          echoed.innerText = echoed;
-          console.log(echoed);
+          const echoem = run(coem.value, new Environment(), debug.checked);
+          echoed.innerText = echoem;
+          console.log(echoem);
         } catch (e) {
           echoed.innerText =
             e.msg + "\n\n(full error description is logged to the console)";
