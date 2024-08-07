@@ -1,4 +1,5 @@
 import { runtimeError } from "./errors.js";
+import { CoemCallable } from "./interpreter.js";
 
 class Environment {
   constructor(enclosing = null) {
