@@ -1,7 +1,6 @@
-import { runtimeError } from './errors.js';
+import { runtimeError } from "./errors.js";
 
 class Environment {
-
   constructor(enclosing = null) {
     this.values = new Map();
     this.enclosing = enclosing;
@@ -43,7 +42,10 @@ class Environment {
       Environment.asPalimpsest = true;
       return;
     }
-    if (name === "with" && value.literal === "patience") {
+    if (
+      (name === "with" && value.literal === "patience") ||
+      (name === "read" && value.literal === "slowly")
+    ) {
       this.withPatience = true;
       return;
     }
