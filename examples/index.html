@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>coem-lang sandbox</title>
+  </head>
+  <body>
+    <main>
+      <button id="echo">echo</button>
+      <label for="debug">debug</label><input id="debug" type="checkbox" />
+
+      <br />
+
+      <textarea id="coem" rows="30" cols="60"></textarea>
+
+      <hr />
+
+      <pre id="echoed"></pre>
+    </main>
+
+    <script type="module">
+      import { run, Environment } from "../src/main.js";
+
+      echo.addEventListener("click", () => {
+        try {
+          const echoed = run(coem.value, new Environment(), debug.checked);
+          echoed.innerText = echoed;
+          console.log(echoed);
+        } catch (e) {
+          echoed.innerText =
+            e.msg + "\n\n(full error description is logged to the console)";
+          console.error(e);
+        }
+      });
+    </script>
+  </body>
+</html>
