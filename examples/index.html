@@ -22,9 +22,13 @@
     <script type="module">
       import { run, Environment } from "../src/main.js";
 
-      echo.addEventListener("click", () => {
+      echo.addEventListener("click", async () => {
         try {
-          const echoem = run(coem.value, new Environment(), debug.checked);
+          const echoem = await run(
+            coem.value,
+            new Environment(),
+            debug.checked
+          );
           echoed.innerText = echoem;
           console.log(echoem);
         } catch (e) {

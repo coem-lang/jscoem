@@ -16,7 +16,7 @@ const coem = await readFile(join(import.meta.dirname, coemFileName), "utf8");
 
 const debug = false;
 try {
-  const echo = run(coem, new Environment(), debug);
+  const echo = await run(coem, new Environment(), debug);
   console.log(echo);
 } catch (e) {
   console.error(e);
