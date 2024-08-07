@@ -218,7 +218,7 @@ class Interpreter {
   }
 
   visitCall(expr) {
-    const callee = this.evaluate(expr.callee);
+    let callee = this.evaluate(expr.callee);
 
     if (Array.isArray(callee)) callee = callee[0];
 
