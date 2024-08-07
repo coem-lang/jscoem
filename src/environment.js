@@ -5,6 +5,7 @@ class Environment {
   constructor(enclosing = null) {
     this.values = new Map();
     this.enclosing = enclosing;
+    this.withPatience = false;
   }
 
   get(token) {
@@ -40,6 +41,10 @@ class Environment {
   setNameValue(name, value) {
     if (name === "as" && value.literal === "palimpsest") {
       Environment.asPalimpsest = true;
+      return;
+    }
+    if (name === "with" && value.literal === "patience") {
+      this.withPatience = true;
       return;
     }
 
