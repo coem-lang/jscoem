@@ -4,6 +4,7 @@ import {
   Unary,
   Call,
   Literal,
+  Maybe,
   Logical,
   Var,
   Return,
@@ -120,6 +121,7 @@ class Interpreter {
     else if (expr instanceof ExpressionStatement) return this.visitExpressionStmt(expr);
     else if (expr instanceof Var) return this.visitVar(expr);
     else if (expr instanceof Literal) return this.visitLiteral(expr);
+    else if (expr instanceof Maybe) return this.visitLiteral(expr);
     else if (expr instanceof Unary) return this.visitUnary(expr);
     else if (expr instanceof Binary) return this.visitBinary(expr);
   }

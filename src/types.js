@@ -21,6 +21,12 @@ class Literal {
   }
 }
 
+class Maybe {
+  get value() {
+    return Math.random() > 0.5 ? true : false;
+  }
+}
+
 class Var {
   constructor(name) {
     this.name = name
@@ -105,6 +111,7 @@ export {
   Call,
   While,
   Literal,
+  Maybe,
   Return,
   Logical,
   CoemFunction,
