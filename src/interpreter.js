@@ -268,4 +268,4 @@ class Interpreter {
   }
 }
 
-export { Interpreter };
+export { Interpreter, CoemCallable };

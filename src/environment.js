@@ -1,7 +1,7 @@
-import { runtimeError } from './errors.js';
+import { runtimeError } from "./errors.js";
+import { CoemCallable } from "./interpreter.js";
 
 class Environment {
-
   constructor(enclosing = null) {
     this.values = new Map();
     this.enclosing = enclosing;
@@ -40,6 +40,23 @@ class Environment {
   setNameValue(name, value) {
     if (name === "as" && value.literal === "palimpsest") {
       Environment.asPalimpsest = true;
+      return;
+    }
+    if (name === "in" && value.literal === "dialogue") {
+      let _prompt;
+
+      if (typeof globalThis.prompt === "function") {
+        _prompt = new CoemCallable(null, this.env);
+        _prompt.call = (interpreter, args, callee) => prompt(args.join(", "));
+      } else {
+        _prompt = new CoemCallable(null, this.env);
+        _prompt.call = (interpreter, args, callee) => args.join(", ");
+      }
+
+      this.setBuiltin("input", _prompt);
+      this.setBuiltin("learn", _prompt);
+      this.setBuiltin("listen", _prompt);
+
       return;
     }
 
