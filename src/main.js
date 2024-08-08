@@ -1,13 +1,13 @@
 // adapted from YALI.js by Daniel Berezin (danman113)
 // https://github.com/danman113/YALI.js
 
-import { Tokenizer } from './tokenizer.js';
-import { Parser } from './parser.js';
-import { Interpreter } from './interpreter.js';
-import { Environment } from './environment.js';
+import { Tokenizer } from "./tokenizer.js";
+import { Parser } from "./parser.js";
+import { Interpreter } from "./interpreter.js";
+import { Environment } from "./environment.js";
 
 // function run(code, environment, printfn, debug = false) {
-function run(code, environment, debug = false) {
+async function run(code, environment, debug = false) {
   const tokenizer = new Tokenizer(code);
   const tokens = tokenizer.scanTokens();
   if (debug) console.log(tokens);
@@ -21,6 +21,11 @@ function run(code, environment, debug = false) {
     lastStatement = interpreter.interpret(statement);
   }
   const echo = interpreter.getEcho();
+
+  if (environment.withPatience) {
+    await new Promise((res) => setTimeout(res, code.split("\n").length * 500));
+  }
+
   return echo;
   // return lastStatement;
 }
@@ -33,12 +38,5 @@ function parse(code) {
   return statements;
 }
 
-export { formatCoemError } from './errors.js';
-export {
-  run,
-  parse,
-  Parser,
-  Tokenizer,
-  Interpreter,
-  Environment
-};
+export { formatCoemError } from "./errors.js";
+export { run, parse, Parser, Tokenizer, Interpreter, Environment };
