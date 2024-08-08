@@ -6,6 +6,7 @@ import {
   Var,
   Call,
   Literal,
+  Maybe,
   While,
   Return,
   CoemFunction,
@@ -180,6 +181,8 @@ class Parser {
     if (this.match(token.FALSE)) return new Literal(false);
     if (this.match(token.TRUE)) return new Literal(true);
     if (this.match(token.NOTHING)) return new Literal(null);
+
+    if (this.match(token.MAYBE)) return new Maybe();
 
     if (this.match(token.STRING)) {
       return new Literal(this.previous().literal);

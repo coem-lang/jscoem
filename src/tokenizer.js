@@ -13,6 +13,7 @@ const tokens = `
   COMMENT,
 
   AND, OR,
+  MAYBE,
   IS, AM, ARE,
   IF, ELSE, WHILE,
   LET, BE,
@@ -43,6 +44,7 @@ const keywords = {
   not: tokenEnum.NOT,
   true: tokenEnum.TRUE,
   false: tokenEnum.FALSE,
+  maybe: tokenEnum.MAYBE,
   nothing: tokenEnum.NOTHING,
   let: tokenEnum.LET,
   be: tokenEnum.BE,
