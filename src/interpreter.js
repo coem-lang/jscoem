@@ -1,4 +1,4 @@
-import { runtimeError, ReturnError } from './errors.js';
+import { runtimeError, ReturnError } from "./errors.js";
 import {
   Binary,
   Unary,
@@ -14,19 +14,19 @@ import {
   VarStatement,
   Condition,
   Directive,
-  Comment
-} from './types.js';
-import { Environment } from './environment.js';
-import { Tokenizer } from './tokenizer.js';
+  Comment,
+} from "./types.js";
+import { Environment } from "./environment.js";
+import { Tokenizer } from "./tokenizer.js";
 const token = Tokenizer.tokenEnum;
 
-const isTruthy = val => Boolean(val);
+const isTruthy = (val) => Boolean(val);
 const isEqual = (a, b) => a === b;
 
 class CoemCallable {
   constructor(declaration, closure) {
-    this.declaration = declaration
-    this.closure = closure
+    this.declaration = declaration;
+    this.closure = closure;
   }
 
   // call(interpreter, args) {
@@ -48,10 +48,9 @@ class CoemCallable {
   }
 
   toString() {
-    return `<${this.declaration.name.lexeme}()>`
-  };
+    return `<${this.declaration.name.lexeme}()>`;
+  }
 }
-;
 class Interpreter {
   // constructor(environment, printfunc = console.log) {
   constructor(environment, source) {
@@ -88,18 +87,18 @@ class Interpreter {
       } else {
         this.lines[line].push(print);
       }
-    }
+    };
 
     const getArgPrint = (arg) => {
       if (Array.isArray(arg)) {
         return arg.join(", ");
       }
       return arg;
-    }
+    };
 
-    this.environment.setBuiltin('print', nativePrint);
-    this.environment.setBuiltin('know', nativePrint);
-    this.environment.setBuiltin('say', nativePrint);
+    this.environment.setBuiltin("print", nativePrint);
+    this.environment.setBuiltin("know", nativePrint);
+    this.environment.setBuiltin("say", nativePrint);
   }
 
   interpret(expr) {
@@ -117,7 +116,8 @@ class Interpreter {
     else if (expr instanceof VarStatement) return this.visitVarStatement(expr);
     else if (expr instanceof Return) return this.visitReturnStatement(expr);
     // Doesn't need its own, it can just evaluate like grouping
-    else if (expr instanceof ExpressionStatement) return this.visitExpressionStmt(expr);
+    else if (expr instanceof ExpressionStatement)
+      return this.visitExpressionStmt(expr);
     else if (expr instanceof Var) return this.visitVar(expr);
     else if (expr instanceof Literal) return this.visitLiteral(expr);
     else if (expr instanceof Unary) return this.visitUnary(expr);
@@ -218,15 +218,17 @@ class Interpreter {
   }
 
   visitCall(expr) {
-    const callee = this.evaluate(expr.callee);
+    let callee = this.evaluate(expr.callee);
 
-    let args = expr.arguments.map(arg => this.evaluate(arg));
+    if (Array.isArray(callee)) callee = callee[0];
+
+    let args = expr.arguments.map((arg) => this.evaluate(arg));
 
     if (!callee.call) {
-      throw runtimeError('Can only call functions.', expr.dash);
+      throw runtimeError("Can only call functions.", expr.dash);
     }
 
-    return callee.call(this, args, expr.callee)
+    return callee.call(this, args, expr.callee);
   }
 
   visitUnary(expr) {
