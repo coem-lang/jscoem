@@ -19,6 +19,6 @@
   },
   "homepage": "https://github.com/coem-lang/jscoem#readme",
   "devDependencies": {
-    "rollup": "^2.66.1"
+    "rollup": "^2.79.2"
   }
 }
